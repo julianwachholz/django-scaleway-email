@@ -1,0 +1,3 @@
+*.py[co]
+.pytest_cache
+.env*
