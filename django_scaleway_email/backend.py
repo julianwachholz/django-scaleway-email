@@ -1,12 +1,12 @@
-import json
-import requests
 import base64
+import json
 from email.mime.base import MIMEBase
 
+import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import EmailMessage
+from django.core.mail.backends.base import BaseEmailBackend
 
 
 class ScalewayEmailException(Exception):
@@ -28,14 +28,29 @@ class EmailBackend(BaseEmailBackend):
     ATTACHMENT_TYPES = [
         "application/ics",
         "application/pdf",
+        "application/pkcs10",
+        "application/pkcs7-mime",
+        "application/pkcs7-signature",
+        "application/vnd.ms-excel",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+        "application/vnd.openxmlformats-officedocument.presentationml.template",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+        "application/x-pdf",
+        "application/xml",
         "image/gif",
         "image/jpeg",
         "image/jpg",
         "image/png",
+        "image/svg+xml",
         "text/calendar",
         "text/csv",
         "text/html",
         "text/plain",
+        "text/xml",
     ]
 
     def __init__(self, fail_silently=False, **kwargs):
