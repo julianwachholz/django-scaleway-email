@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-scaleway-email"
-version = "0.1.0"
+version = "0.1.1"
 description = "Django email backend for Scaleway Transactional Email service"
 authors = ["Julian Wachholz <julian@wachholz.ch>"]
 license = "MIT"
@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-requests = "^2.31.0"
+requests = ">=2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 django = [
