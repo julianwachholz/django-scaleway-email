@@ -23,14 +23,21 @@ class EmailBackend(BaseEmailBackend):
 
     API_VERSION = "v1alpha1"
     API_REGION = "fr-par"
-    API_URL = f"https://api.scaleway.com/transactional-email/{API_VERSION}/regions/{API_REGION}/emails"
+    API_URL = "https://api.scaleway.com/transactional-email/{API_VERSION}/regions/{API_REGION}/emails"
 
     ATTACHMENT_TYPES = [
+        "application/acad-template",
+        "application/acad",
+        "application/autocad_dwg",
+        "application/autocad_dxf",
+        "application/dwf",
+        "application/dxf",
         "application/ics",
         "application/pdf",
         "application/pkcs10",
         "application/pkcs7-mime",
         "application/pkcs7-signature",
+        "application/vnd.dwt",
         "application/vnd.ms-excel",
         "application/vnd.ms-powerpoint",
         "application/vnd.oasis.opendocument.spreadsheet",
@@ -39,13 +46,29 @@ class EmailBackend(BaseEmailBackend):
         "application/vnd.openxmlformats-officedocument.presentationml.template",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+        "application/x-dwf",
+        "application/x-dwg",
+        "application/x-dwt",
+        "application/x-dxf",
         "application/x-pdf",
+        "application/x-pkcs12",
+        "application/x-pkcs7-certificates",
+        "application/x-pkcs7-certreqresp",
+        "application/x-pkcs7-crl",
+        "application/x-pkcs7-mime",
+        "application/x-pkcs7-signature",
         "application/xml",
+        # ZIP is only available with "Scale" plan
+        # https://www.scaleway.com/en/docs/transactional-email/how-to/manage-tem-plans/
+        "application/zip",
         "image/gif",
         "image/jpeg",
         "image/jpg",
         "image/png",
         "image/svg+xml",
+        "image/vnd.dwg",
+        "image/vnd.dxf",
+        "model/vnd.dwf",
         "text/calendar",
         "text/csv",
         "text/html",
@@ -53,21 +76,39 @@ class EmailBackend(BaseEmailBackend):
         "text/xml",
     ]
 
-    def __init__(self, fail_silently=False, **kwargs):
+    def __init__(
+        self,
+        *,
+        project_id: str = None,
+        api_key: str = None,
+        region: str = None,
+        version: str = None,
+        api_url: str = None,
+        fail_silently: bool = False,
+        **kwargs,
+    ):
         """Init options from Django settings"""
-        super().__init__(fail_silently=fail_silently, **kwargs)
+        super().__init__(**kwargs)
+        self.fail_silently = fail_silently
 
-        self.api_url = getattr(
+        self.api_url = api_url or getattr(
             settings,
             "SCALEWAY_EMAIL_API_URL",
             self.API_URL,
         )
 
-        self.project_id = getattr(settings, "SCALEWAY_EMAIL_PROJECT_ID", None)
+        if api_url is None and region is not None:
+            self.api_url = self.api_url.replace("{API_REGION}", region)
+        if api_url is None and version is not None:
+            self.api_url = self.api_url.replace("{API_VERSION}", version)
+
+        self.project_id = project_id or getattr(
+            settings, "SCALEWAY_EMAIL_PROJECT_ID", None
+        )
         if self.project_id is None:
             raise ImproperlyConfigured("SCALEWAY_EMAIL_PROJECT_ID is required")
 
-        self.api_key = getattr(settings, "SCALEWAY_EMAIL_API_KEY", None)
+        self.api_key = api_key or getattr(settings, "SCALEWAY_EMAIL_API_KEY", None)
         if self.api_key is None:
             raise ImproperlyConfigured("SCALEWAY_EMAIL_API_KEY is required")
 
@@ -141,7 +182,12 @@ class EmailBackend(BaseEmailBackend):
         return payload
 
     def _post(self, payload: dict) -> dict:
-        """Send a POST request to the Scaleway API."""
+        """
+        Send a POST request to the Scaleway API.
+
+        https://www.scaleway.com/en/developers/api/transactional-email/emails
+
+        """
         response = requests.post(
             self.api_url,
             json=payload,

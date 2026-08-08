@@ -28,11 +28,31 @@ Ensure the application has the `TransactionalEmailEmailFullAccess` permission.
 
 3. Done! You can now use `django.core.mail.send_mail` etc. to send emails!
 
+### Django 6.1 `MAILERS`
+
+Alternatively, this email backend supports Django's new [`MAILERS`](https://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-MAILERS) setting:
+
+```python
+MAILERS = {
+   "default": {
+      "BACKEND": "django_scaleway_email.backend.EmailBackend",
+      "OPTIONS": {
+         "project_id": "YOUR_PROJECT_ID",
+         "api_key": "YOUR_API_KEY",
+         # optional:
+         "region": "fr-par",
+         "version": "v1alpha1",
+         "api_url": "", # overwrite the full API endpoint
+      },
+   }
+}
+```
+
 ## Limitations
 
 Scaleway imposes a few [limitations on emails](https://www.scaleway.com/en/docs/managed-services/transactional-email/reference-content/tem-capabilities-and-limits/). Here's a short summary:
 
-- Max. 3 recipients per email
-- Max. 2 attachments
+- Max. 10 recipients per email
+- Max. 10 attachments
 - Max. total email size is 2 MB
-- Only PDF, images and plaintext attachments allowed
+- Only certain types of attachments are allowed, see [ATTACHMENT_TYPES](./django_scaleway_email/backend.py#L28)

@@ -1,11 +1,12 @@
 import os
+
+import django
 import pytest
 import requests
-
-from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.exceptions import ImproperlyConfigured
+from django.core.mail import EmailMultiAlternatives, send_mail
 
-from django_scaleway_email.backend import ScalewayEmailException
+from django_scaleway_email.backend import EmailBackend, ScalewayEmailException
 
 
 class MockResponse:
@@ -115,6 +116,36 @@ def test_scaleway_attachment_invalid_mime(settings, mock_requests):
     assert (
         str(exc_info.value)
         == "Attachment test.mp3 has an disallowed content type: audio/mpeg"
+    )
+
+
+def test_scaleway_mailers_setting(settings, mock_requests):
+    """Verify the backend works with Django 6.1+ MAILERS setting."""
+    if django.VERSION < (6, 1):
+        pytest.skip("Django 6.1+ required for MAILERS setting")
+
+    settings.MAILERS = {
+        "scaleway": {
+            "BACKEND": "django_scaleway_email.backend.EmailBackend",
+            "OPTIONS": {
+                "project_id": "dummy-project-id",
+                "api_key": "dummy-api-key",
+                "region": "nl-ams",
+                "version": "v2",
+            },
+        }
+    }
+
+    from django.core.mail import mailers
+
+    mailer = mailers["scaleway"]
+    assert mailer is not None
+    assert isinstance(mailer, EmailBackend)
+    assert mailer.project_id == "dummy-project-id"
+    assert mailer.api_key == "dummy-api-key"
+    assert (
+        mailer.api_url
+        == "https://api.scaleway.com/transactional-email/v2/regions/nl-ams/emails"
     )
 
 
