@@ -1,0 +1,5 @@
+coverage[toml]
+django
+pytest
+pytest-django
+requests

@@ -1,4 +1,10 @@
 *.py[co]
 .pytest_cache
 .env*
-/dist
+*.egg-info/
+/.coverage
+/.coverage.*
+/.tox
+/build/
+/dist/
+/venv/
