@@ -16,8 +16,6 @@ ROOT_URLCONF = "test_project.urls"
 
 WSGI_APPLICATION = "test_project.wsgi.application"
 
-EMAIL_BACKEND = "django_scaleway_email.backend.EmailBackend"
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

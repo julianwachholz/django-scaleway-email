@@ -1,30 +1,78 @@
-[tool.poetry]
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools",
+]
+
+[tool.setuptools]
+packages = ["django_scaleway_email"]
+
+[project]
 name = "django-scaleway-email"
 version = "0.2.0"
 description = "Django email backend for Scaleway Transactional Email service"
-authors = ["Julian Wachholz <julian@wachholz.ch>"]
 license = "MIT"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-requests = ">=2.0.0"
-
-[tool.poetry.group.dev.dependencies]
-django = [
-    { version = "^4.2", python = ">=3.8.1,<3.10" },
-    { version = "^5.0", python = ">=3.10,<3.12" },
-    { version = "^6.0", python = ">=3.12" },
-    { version = "^6.1", python = ">=3.12" },
+authors = [
+  { name = "Julian Wachholz", email = "julian@wachholz.ch" },
 ]
-pytest = ">=8.0.0"
-pytest-django = ">=4.8.0"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+keywords = [
+  "Django",
+]
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
+  "Framework :: Django :: 6.1",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Typing :: Typed",
+]
+
+urls.Changelog = "https://github.com/julianwachholz/django-scaleway-email/releases"
+urls.Repository = "https://github.com/julianwachholz/django-scaleway-email"
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+add_imports = [
+  "from __future__ import annotations",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "test_project.settings"
 minversion = "7.0"
-addopts = "--no-migrations"
+addopts = "--no-migrations --strict-config --strict-markers"
+filterwarnings = [
+    "ignore:.*EMAIL_BACKEND.*",
+]
+
+[tool.coverage]
+run.branch = true
+run.parallel = true
+run.source = [
+  "django_scaleway_email",
+  "test_project",
+]
+paths.source = [
+  "django_scaleway_email",
+  ".tox/**/site-packages",
+]
+report.show_missing = true
+
+[tool.rstcheck]
+report_level = "ERROR"
