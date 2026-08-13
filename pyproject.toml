@@ -9,7 +9,7 @@ packages = ["django_scaleway_email"]
 
 [project]
 name = "django-scaleway-email"
-version = "0.2.0"
+version = "0.2.1"
 description = "Django email backend for Scaleway Transactional Email service"
 license = "MIT"
 authors = [
