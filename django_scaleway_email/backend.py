@@ -98,9 +98,9 @@ class EmailBackend(BaseEmailBackend):
         )
 
         if api_url is None:
-            self.api_url = self.api_url.format(
-                API_REGION=region or self.API_REGION,
-                API_VERSION=version or self.API_VERSION,
+            self.api_url = (
+                self.api_url.replace("{API_REGION}", region or self.API_REGION)
+                .replace("{API_VERSION}", version or self.API_VERSION)
             )
 
         self.project_id = project_id or getattr(settings, "SCALEWAY_EMAIL_PROJECT_ID", None)
