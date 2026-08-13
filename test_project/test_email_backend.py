@@ -113,14 +113,36 @@ def test_scaleway_attachment_invalid_mime(settings, mock_requests):
     )
     with pytest.raises(ScalewayEmailException) as exc_info:
         message.send()
-    assert (
-        str(exc_info.value)
-        == "Attachment test.mp3 has an disallowed content type: audio/mpeg"
-    )
+    assert str(exc_info.value) == "Attachment test.mp3 has a disallowed content type: audio/mpeg"
 
 
 def test_scaleway_mailers_setting(settings, mock_requests):
     """Verify the backend works with Django 6.1+ MAILERS setting."""
+    if django.VERSION < (6, 1):
+        pytest.skip("Django 6.1+ required for MAILERS setting")
+
+    settings.MAILERS = {
+        "scaleway": {
+            "BACKEND": "django_scaleway_email.backend.EmailBackend",
+            "OPTIONS": {
+                "project_id": "dummy-project-id",
+                "api_key": "dummy-api-key",
+            },
+        }
+    }
+
+    from django.core.mail import mailers
+
+    mailer = mailers["scaleway"]
+    assert mailer is not None
+    assert isinstance(mailer, EmailBackend)
+    assert mailer.project_id == "dummy-project-id"
+    assert mailer.api_key == "dummy-api-key"
+    assert mailer.api_url == "https://api.scaleway.com/transactional-email/v1alpha1/regions/fr-par/emails"
+
+
+def test_scaleway_mailers_setting_api_url_params(settings, mock_requests):
+    """Check API version and region overrides."""
     if django.VERSION < (6, 1):
         pytest.skip("Django 6.1+ required for MAILERS setting")
 
@@ -143,10 +165,38 @@ def test_scaleway_mailers_setting(settings, mock_requests):
     assert isinstance(mailer, EmailBackend)
     assert mailer.project_id == "dummy-project-id"
     assert mailer.api_key == "dummy-api-key"
-    assert (
-        mailer.api_url
-        == "https://api.scaleway.com/transactional-email/v2/regions/nl-ams/emails"
-    )
+    assert mailer.api_url == "https://api.scaleway.com/transactional-email/v2/regions/nl-ams/emails"
+
+
+def test_scaleway_backend(settings, mock_requests):
+    settings.SCALEWAY_EMAIL_PROJECT_ID = "dummy-project-id"
+    settings.SCALEWAY_EMAIL_API_KEY = "dummy-api-key"
+    backend = EmailBackend()
+    assert backend.api_url == "https://api.scaleway.com/transactional-email/v1alpha1/regions/fr-par/emails"
+
+
+def test_scaleway_mailers_setting_api_url(settings, mock_requests):
+    """Check API URL override."""
+    if django.VERSION < (6, 1):
+        pytest.skip("Django 6.1+ required for MAILERS setting")
+
+    settings.MAILERS = {
+        "scaleway": {
+            "BACKEND": "django_scaleway_email.backend.EmailBackend",
+            "OPTIONS": {
+                "project_id": "dummy-project-id",
+                "api_key": "dummy-api-key",
+                "api_url": "https://api.example.com/endpoint",
+            },
+        }
+    }
+
+    from django.core.mail import mailers
+
+    mailer = mailers["scaleway"]
+    assert mailer is not None
+    assert isinstance(mailer, EmailBackend)
+    assert mailer.api_url == "https://api.example.com/endpoint"
 
 
 def test_scaleway_email_real(settings):
