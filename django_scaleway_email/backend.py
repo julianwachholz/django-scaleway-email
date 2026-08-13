@@ -98,9 +98,12 @@ class EmailBackend(BaseEmailBackend):
         )
 
         if api_url is None:
-            self.api_url = (
-                self.api_url.replace("{API_REGION}", region or self.API_REGION)
-                .replace("{API_VERSION}", version or self.API_VERSION)
+            self.api_url = self.api_url.replace(
+                "{API_REGION}",
+                region or self.API_REGION,
+            ).replace(
+                "{API_VERSION}",
+                version or self.API_VERSION,
             )
 
         self.project_id = project_id or getattr(settings, "SCALEWAY_EMAIL_PROJECT_ID", None)
@@ -166,7 +169,7 @@ class EmailBackend(BaseEmailBackend):
                         content = content.encode()
 
                 if mimetype not in self.ATTACHMENT_TYPES:
-                    raise ScalewayEmailException(f"Attachment {filename} has an disallowed content type: {mimetype}")
+                    raise ScalewayEmailException(f"Attachment {filename} has a disallowed content type: {mimetype}")
 
                 payload["attachments"].append(
                     {

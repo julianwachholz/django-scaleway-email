@@ -113,7 +113,7 @@ def test_scaleway_attachment_invalid_mime(settings, mock_requests):
     )
     with pytest.raises(ScalewayEmailException) as exc_info:
         message.send()
-    assert str(exc_info.value) == "Attachment test.mp3 has an disallowed content type: audio/mpeg"
+    assert str(exc_info.value) == "Attachment test.mp3 has a disallowed content type: audio/mpeg"
 
 
 def test_scaleway_mailers_setting(settings, mock_requests):
@@ -166,6 +166,13 @@ def test_scaleway_mailers_setting_api_url_params(settings, mock_requests):
     assert mailer.project_id == "dummy-project-id"
     assert mailer.api_key == "dummy-api-key"
     assert mailer.api_url == "https://api.scaleway.com/transactional-email/v2/regions/nl-ams/emails"
+
+
+def test_scaleway_backend(settings, mock_requests):
+    settings.SCALEWAY_EMAIL_PROJECT_ID = "dummy-project-id"
+    settings.SCALEWAY_EMAIL_API_KEY = "dummy-api-key"
+    backend = EmailBackend()
+    assert backend.api_url == "https://api.scaleway.com/transactional-email/v1alpha1/regions/fr-par/emails"
 
 
 def test_scaleway_mailers_setting_api_url(settings, mock_requests):
