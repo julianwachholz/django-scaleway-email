@@ -97,14 +97,13 @@ class EmailBackend(BaseEmailBackend):
             self.API_URL,
         )
 
-        if api_url is None and region is not None:
-            self.api_url = self.api_url.replace("{API_REGION}", region)
-        if api_url is None and version is not None:
-            self.api_url = self.api_url.replace("{API_VERSION}", version)
+        if api_url is None:
+            self.api_url = self.api_url.format(
+                API_REGION=region or self.API_REGION,
+                API_VERSION=version or self.API_VERSION,
+            )
 
-        self.project_id = project_id or getattr(
-            settings, "SCALEWAY_EMAIL_PROJECT_ID", None
-        )
+        self.project_id = project_id or getattr(settings, "SCALEWAY_EMAIL_PROJECT_ID", None)
         if self.project_id is None:
             raise ImproperlyConfigured("SCALEWAY_EMAIL_PROJECT_ID is required")
 
@@ -167,9 +166,7 @@ class EmailBackend(BaseEmailBackend):
                         content = content.encode()
 
                 if mimetype not in self.ATTACHMENT_TYPES:
-                    raise ScalewayEmailException(
-                        f"Attachment {filename} has an disallowed content type: {mimetype}"
-                    )
+                    raise ScalewayEmailException(f"Attachment {filename} has an disallowed content type: {mimetype}")
 
                 payload["attachments"].append(
                     {
@@ -194,9 +191,7 @@ class EmailBackend(BaseEmailBackend):
             headers={"X-Auth-Token": self.api_key},
         )
         if response.status_code != 200:
-            raise ScalewayEmailException(
-                f"Scaleway API Error {response.status_code}: {response.text}"
-            )
+            raise ScalewayEmailException(f"Scaleway API Error {response.status_code}: {response.text}")
         return response.json()
 
     def send_messages(self, email_messages: list[EmailMessage]) -> int:
